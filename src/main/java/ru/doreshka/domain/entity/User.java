@@ -1,5 +1,6 @@
 package ru.doreshka.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -16,6 +17,7 @@ public class User extends PanacheEntity {
     private String username;
 
     @Column(nullable = false, name = "password_hash")
+    @JsonIgnore
     private String passwordHash;
 
     @Column(nullable = false, name = "created_at", updatable = false)
