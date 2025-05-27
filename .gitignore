@@ -15,3 +15,8 @@ mvnw
 .certs/
 
 .mvn
+problem_tests/
+.settings
+.classpath
+.factorypath
+.project

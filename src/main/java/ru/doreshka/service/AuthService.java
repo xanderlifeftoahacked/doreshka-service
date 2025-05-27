@@ -12,6 +12,7 @@ import ru.doreshka.dto.auth.RegisterResponse;
 import ru.doreshka.exceptions.ConflictException;
 import ru.doreshka.exceptions.UserNotExist;
 import ru.doreshka.exceptions.WrongPasswordException;
+import ru.doreshka.security.JWTGenerator;
 import ru.doreshka.security.PasswordHasher;
 
 import java.time.Duration;
@@ -24,6 +25,9 @@ public class AuthService {
 
     @Inject
     private PasswordHasher passwordHasher;
+
+    @Inject
+    private JWTGenerator jwtGenerator;
 
     public Uni<User> registerUser(RegisterRequest request) {
         return userRepository.findByUsername(request.getUsername())
@@ -39,7 +43,7 @@ public class AuthService {
                         throw new WrongPasswordException("Invalid password");
                     }
 
-                    return generateJwt(request.getUsername(), "user");
+                    return jwtGenerator.generateJwt(request.getUsername(), "user");
                 });
     }
 
@@ -47,18 +51,5 @@ public class AuthService {
         return userRepository.getUsers();
     }
 
-    private Uni<String> generateJwt(String username, String role) {
-        return userRepository.
-                getUserId(username)
-                .onItem()
-                .transformToUni(userId ->
-                        Uni.createFrom().item(() ->
-                                Jwt.issuer("doreshka-issuer")
-                                        .upn(userId.toString())
-                                        .groups(role)
-                                        .expiresIn(Duration.ofHours(24))
-                                        .sign()
-                        )
-                );
-    }
+
 }
