@@ -9,13 +9,14 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "contest")
+@NoArgsConstructor
 public class Contest extends PanacheEntity {
     @Column(nullable = false, unique = true, name = "name")
     private String contestName;
@@ -29,6 +30,17 @@ public class Contest extends PanacheEntity {
     @Column(nullable = false, name = "time_end")
     private LocalDateTime endTime;
 
+    @OneToMany(mappedBy = "contest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    public List<ContestProblem> contestProblems = new ArrayList<>();
+
+    public Contest(String contestName, String description, LocalDateTime beginTime, LocalDateTime endTime) {
+        this.contestName = contestName;
+        this.description = description;
+        this.beginTime = beginTime;
+        this.endTime = endTime;
+    }
+
     @Transient
     public ContestStatus getStatus() {
         LocalDateTime now = LocalDateTime.now();
@@ -41,4 +53,8 @@ public class Contest extends PanacheEntity {
         return ContestStatus.ONGOING;
     }
 
+    public void addProblem(Problem problem, String shortName) {
+        ContestProblem cp = new ContestProblem(this, problem, shortName);
+        contestProblems.add(cp);
+    }
 }

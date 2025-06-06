@@ -4,12 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "user_contest_access")
+@NoArgsConstructor
+@Table(name = "user_contest_access",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "contest_id"})
+        }
+)
 public class UserContestAccess extends PanacheEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
@@ -28,4 +34,5 @@ public class UserContestAccess extends PanacheEntity {
     void onCreate(){
         this.createdAt = LocalDateTime.now();
     }
+
 }

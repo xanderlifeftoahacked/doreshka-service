@@ -35,6 +35,13 @@ public class ProblemResource {
         );
     }
 
+    @GET
+    @Path("/{problemId}")
+    public Uni<Response> getProblem(@PathParam("problemId") Long problemId){
+        return problemService.getProblem(problemId)
+                .onItem().transform(problem -> Response.ok(problem).build());
+    }
+
     @POST
     @Path("/{problemId}/tests")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

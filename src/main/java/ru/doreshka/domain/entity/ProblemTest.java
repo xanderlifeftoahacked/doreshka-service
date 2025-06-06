@@ -2,12 +2,14 @@ package ru.doreshka.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "problem_test",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"input_path", "problem_id", "answer_path"})
+        }
+)
 public class ProblemTest extends PanacheEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)

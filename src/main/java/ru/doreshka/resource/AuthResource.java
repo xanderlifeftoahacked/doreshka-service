@@ -31,7 +31,7 @@ public class AuthResource {
 
     @POST
     @Path("/login")
-    public Uni<Response> loginUser(LoginRequest request) {
+    public Uni<Response> loginUser(@Valid LoginRequest request) {
         return authService.loginUser(request)
                 .onItem().transform(token ->
                         Response.status(Response.Status.OK)

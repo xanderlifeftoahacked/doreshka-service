@@ -12,7 +12,7 @@ public class DBExceptionMapper implements ExceptionMapper<DBException> {
     @Override
     public Response toResponse(DBException ex) {
         Log.error(ex.getMessage());
-        return Response.status(Response.Status.BAD_REQUEST)
+        return Response.status(Response.Status.FORBIDDEN)
                 .entity(Map.of("error", ex.getMessage()))
                 .build();
     }

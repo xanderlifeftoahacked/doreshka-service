@@ -3,6 +3,7 @@ package ru.doreshka.domain.repository;
 import io.quarkus.hibernate.reactive.panache.Panache;
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Parameters;
 import io.smallrye.mutiny.Uni;
@@ -30,6 +31,12 @@ public class UserRepository implements PanacheRepository<User> {
     @WithSession
     public Uni<User> findByUsername(String username) {
         return find("username", username).firstResult();
+    }
+
+    @WithTransaction
+    public Uni<Void> clear() {
+        return deleteAll().replaceWithVoid();
+
     }
 
     @WithSession

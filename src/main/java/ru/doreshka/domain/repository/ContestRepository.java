@@ -7,8 +7,10 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.PersistenceException;
 import ru.doreshka.domain.entity.Contest;
-import ru.doreshka.domain.entity.User;
+import ru.doreshka.domain.entity.Problem;
 import ru.doreshka.exceptions.DBException;
+
+import java.util.List;
 
 @ApplicationScoped
 public class ContestRepository implements PanacheRepository<Contest> {
@@ -22,4 +24,13 @@ public class ContestRepository implements PanacheRepository<Contest> {
                         new DBException("Contest with name '" + contest.getContestName() + "' already exists")
                 );
     }
+
+    @WithSession
+    public Uni<Problem> insertProblem(Contest contest, Problem problem, String shortName) {
+        return Panache.withTransaction(() -> {
+            contest.addProblem(problem, shortName);
+            return contest.persistAndFlush();
+        });
+    }
+
 }

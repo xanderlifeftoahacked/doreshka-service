@@ -11,12 +11,10 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "problem")
+@Data
+@NoArgsConstructor
 public class Problem extends PanacheEntity {
 
     @Column(nullable = false)
@@ -31,10 +29,13 @@ public class Problem extends PanacheEntity {
     @Column(nullable = false, name = "memory_limit")
     private int memoryLimit;
 
-
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnore
     public List<ProblemTest> tests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    public List<ContestProblem> contestProblems = new ArrayList<>();
 
     public Problem(String title, String description, int timeLimit, int memoryLimit){
         this.title = title;
