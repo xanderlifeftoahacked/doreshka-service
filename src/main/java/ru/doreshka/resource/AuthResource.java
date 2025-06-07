@@ -1,5 +1,6 @@
 package ru.doreshka.resource;
 
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.security.PermissionsAllowed;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.mutiny.Uni;
@@ -69,6 +70,17 @@ public class AuthResource {
         return authService.getUsers()
                 .onItem()
                 .transform(user -> Response.status(Response.Status.OK).entity(user).build());
+    }
+
+    @DELETE
+    @Path("/users/{userId}")
+    @RolesAllowed("admin")
+    @ReactiveTransactional
+    public Uni<Response> deleteUser(@QueryParam("userId") Long userId){
+        return User.deleteById(userId).onItem().transform(deleted ->
+                deleted ?
+                        Response.ok().entity(Map.of("deleted", userId)).build() :
+                        Response.status(Response.Status.NOT_FOUND).entity(Map.of("user not found", userId)).build());
     }
 
 }

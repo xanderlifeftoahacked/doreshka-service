@@ -16,6 +16,7 @@ mvnw
 
 .mvn
 problem_tests/
+solutions/
 .settings
 .classpath
 .factorypath

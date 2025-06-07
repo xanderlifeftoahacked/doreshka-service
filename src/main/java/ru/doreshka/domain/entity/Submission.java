@@ -1,6 +1,7 @@
 package ru.doreshka.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.quarkus.hibernate.reactive.panache.PanacheEntity;
 import jakarta.persistence.*;
 
@@ -8,12 +9,15 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "submission")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Submission extends PanacheEntity {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "problem_id")
     @JsonIgnore
     public Problem problem;
+
+
 
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -38,5 +42,11 @@ public class Submission extends PanacheEntity {
     void onCreate(){
         this.createdAt = LocalDateTime.now();
     }
+
+    @Transient
+    public String getProblemName() {
+        return problem.getTitle();
+    }
+
 }
 

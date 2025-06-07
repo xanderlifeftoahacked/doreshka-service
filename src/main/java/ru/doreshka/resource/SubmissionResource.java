@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.SecurityContext;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import ru.doreshka.domain.entity.Problem;
+import ru.doreshka.domain.entity.Submission;
 import ru.doreshka.domain.entity.User;
 import ru.doreshka.exceptions.DBException;
 import ru.doreshka.service.SubmissionService;
@@ -23,6 +24,24 @@ public class SubmissionResource {
 
     @Inject
     SubmissionService submissionService;
+
+    @GET
+    @Path("/my")
+    @RolesAllowed({"user"})
+    public Uni<Response> getMySubmissions(@Context SecurityContext securityContext) {
+        Long id = Long.valueOf(securityContext.getUserPrincipal().getName());
+
+        return User.<User>findById(id)
+                .onItem().ifNotNull().transformToUni(user ->
+                        Submission.find("user.id = ?1", id).list()
+                                .onItem().transform(submissions ->
+                                        Response.ok(submissions).build()
+                                )
+                )
+                .onItem().ifNull().continueWith(() ->
+                        Response.status(Response.Status.UNAUTHORIZED).build()
+                );
+    }
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -56,7 +75,7 @@ public class SubmissionResource {
                                     new DBException("Problem not found")
                             )
                             .onItem().transformToUni(problem ->
-                                    submissionService.createSubmissionReactive(problem, user, fileContent))
+                                    submissionService.createSubmission(problem, user, fileContent))
                             .onItem().transform(submission ->
                                     Response.status(Response.Status.CREATED)
                                             .entity(submission)
