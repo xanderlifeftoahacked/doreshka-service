@@ -4,7 +4,6 @@ pom.xml.releaseBackup
 pom.xml.versionsBackup
 release.properties
 .flattened-pom.xml
-mvnw
 
 .idea
 *.ipr
@@ -16,6 +15,7 @@ mvnw
 
 .mvn
 problem_tests/
+solutions/
 .settings
 .classpath
 .factorypath

@@ -1,50 +1,148 @@
-## Running the application in dev mode
+# Doreshka Platform
 
-You can run your application in dev mode that enables live coding using:
+**Doreshka Platform** — тестирующая система для проведения контестов.
 
-```shell script
-./mvnw quarkus:dev
+## Архитектура
+
+Платформа состоит из двух независимых микросервисов:
+
+- **Contest Service** (port 8080) — управление контестами, задачами и пользователями
+- **Judging Service** (port 8081) — тестирование отправленных решений (сделано отдельным сервисом для горизонтального масштабирования)
+
+## Стек
+
+- **Java 21**
+- **Quarkus 3.22.3**
+- **Maven**
+- **PostgreSQL 15**
+- **Hibernate Reactive**
+- **Panache**
+
+## Детали проекта
+
+### Производительность
+- **Quarkus** является значительно более быстрым фреймворком по сравнению со SpringBoot
+- **Реактивное программирование** - весь код асинхронный
+- **Нативная компиляция** с GraalVM (опционально)
+
+### Функциональность
+- **Управления пользователями** - система доступа к контестам
+- **Управление соревнованиями** — создание и настройка контестов
+- **Система задач** — загрузка и управление задачами, тестами
+- **Тестирование** — проверка решений на тестовых данных
+
+## Зависимости
+
+- **Linux**
+- **Java 21**
+- **Maven**
+- **Docker Compose**
+
+## Запуск
+
+### 1. Клонирование репозитория
+```bash
+git clone git@github.com:xanderlifeftoahacked/doreshka-service.git
+cd doreshka-service
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
-
-## Packaging and running the application
-
-The application can be packaged using:
-
-```shell script
-./mvnw package
+### 2. Запуск базы данных
+```bash
+sudo docker-compose up -d
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+### 3. Сборка проекта
+```bash
+./mvnw clean compile
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+### 4. Запуск сервисов (dev mode)
 
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+#### Contest Service
+```bash
+cd contest-service
+../mvnw quarkus:dev
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+#### Judging Service
+```bash
+cd judging-service
+../mvnw quarkus:dev
 ```
 
-You can then execute your native executable with: `./target/code-with-quarkus-1.0.0-SNAPSHOT-runner`
+### 5. Проверка работоспособности
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+После запуска сервисы будут доступны по адресам:
+- **Contest Service**: http://localhost:8080
+- **Judging Service**: http://localhost:8081
+- **Swagger UI Contest**: http://localhost:8080/q/swagger-ui
+- **Swagger UI Judging**: http://localhost:8081/q/swagger-ui
+
+## Настройка
+
+### Конфигурация базы данных
+
+По умолчанию используются следующие настройки для PostgreSQL:
+```properties
+Database: doreshka-service
+Username: user
+Password: user
+Port: 5432
+```
+
+### JWT ключи
+
+Для работы аутентификации необходимо сгенерировать ключики:
+
+```bash
+openssl genrsa -out privateKey.pem 2048
+openssl rsa -pubout -in privateKey.pem -out publicKey.pem
+cp -t ./judging-service/src/main/resources privateKey.pem publicKey.pem 
+cp -t ./contest-service/src/main/resources privateKey.pem publicKey.pem 
+```
+
+## Структура проекта
+
+```
+dorkacur/
+├── contest-service/          # Основной сервис управления соревнованиями
+│   ├── src/main/java/ru/doreshka/
+│   │   ├── resource/         # REST контроллеры
+│   │   ├── service/          # Бизнес-логика
+│   │   ├── domain/           # Модели данных
+│   │   ├── dto/              # Data Transfer Objects
+│   │   ├── security/         # Настройки безопасности
+│   │   └── config/           # Конфигурация
+│   └── src/main/resources/
+├── judging-service/          # Сервис проверки решений
+│   ├── src/main/java/ru/doreshka/judging/
+│   │   ├── resource/         # REST контроллеры
+│   │   ├── service/          # Логика тестирования
+│   │   ├── entity/           # Модели данных 
+│   │   └── dto/              # Data Transfer Objects
+│   └── src/main/resources/
+├── solutions/                # Директория с решениями пользователей
+└── problem_tests/            # Тесты для задач 
+```
+
+## Тесты
+
+На данный момент покрытие следующее (ничего не в игноре):
+
+![](https://i.yapx.cc/ZWyC9.png)
+
+## Развитие
+
+Архитектура подразумевает хорошую возможность для расширения.
+Базовый функционал реализован, но, конечно, до ЯКонтеста еще далеко. Но, имея такой фундамент и пару знакомых, можно довольно быстро довести проект до чего-то стоящего.
+
+На самом деле, я совершил ошибку, начав писать реактивный код.
+
+Особой необходимости в этом для такого сервиса на самом деле нет.
+
+Так что перед развитем стоило бы произвести большой рефакторинг.
 
 
+---
+
+p.s. это MMMMVP (стоило начинать делать немного раньше)
