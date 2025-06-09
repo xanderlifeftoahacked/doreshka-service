@@ -51,23 +51,18 @@ cd doreshka-service
 sudo docker-compose up -d
 ```
 
-### 3. Сборка проекта
-```bash
-./mvnw clean compile
-```
-
-### 4. Запуск сервисов (dev mode)
+### 3. Запуск сервисов (dev mode)
 
 #### Contest Service
 ```bash
 cd contest-service
-../mvnw quarkus:dev
+mvn quarkus:dev
 ```
 
 #### Judging Service
 ```bash
 cd judging-service
-../mvnw quarkus:dev
+mvn quarkus:dev
 ```
 
 ### 5. Проверка работоспособности
